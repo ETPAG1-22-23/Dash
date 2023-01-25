@@ -8,6 +8,7 @@ public class Player : MonoBehaviour
     SpriteRenderer sr;
     Animator animController;
     float horizontal_value;
+    float vertical_value;
     Vector2 ref_velocity = Vector2.zero;
 
     float jumpForce = 12f;
@@ -16,6 +17,14 @@ public class Player : MonoBehaviour
     [SerializeField] bool is_jumping = false;
     [SerializeField] bool can_jump = false;
     [Range(0, 1)][SerializeField] float smooth_time = 0.5f;
+    [SerializeField] private TrailRenderer tr;
+
+    private bool canDash = true;
+    private bool isDashing;
+    private float dashingPower = 24f;
+    private float dashingTime = 0.2f;
+    private float dashingCooldown = 1f;
+
 
 
     // Start is called before the first frame update
@@ -30,10 +39,24 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (isDashing)
+        {
+            return;
+        }
         horizontal_value = Input.GetAxis("Horizontal");
 
         if(horizontal_value > 0) sr.flipX = false;
         else if (horizontal_value < 0) sr.flipX = true;
+
+       /* if (isDashing)
+        {
+            return;
+        }
+        vertical_value = Input.GetAxis("Verticale");
+
+        if (vertical_value > 0) sr.flipY = false;
+        else if (vertical_value < 0) sr.flipY = true;*/
+
         
         animController.SetFloat("Speed", Mathf.Abs(horizontal_value));
    
@@ -42,9 +65,17 @@ public class Player : MonoBehaviour
             is_jumping = true;
             animController.SetBool("Jumping", true);
         }
+        if (Input.GetKeyDown(KeyCode.LeftShift)&& canDash)
+        {
+            StartCoroutine(Dash());
+        }
     }
     void FixedUpdate()
     {
+        if (isDashing)
+        {
+            return;
+        }
         if (is_jumping && can_jump)
         {           
             is_jumping = false;
@@ -64,4 +95,35 @@ public class Player : MonoBehaviour
     {   
         animController.SetBool("Jumping", false);        
     }
+    private IEnumerator Dash()
+    {
+        canDash = false;
+        isDashing = true;
+        float originalGravity = rb.gravityScale;
+        rb.gravityScale = 0f;
+        if (sr.flipX == true)
+        {
+            rb.velocity = new Vector2(-transform.localScale.x * dashingPower, transform.localScale.y * dashingPower);
+        }
+        else
+        { 
+            rb.velocity = new Vector2(transform.localScale.x * dashingPower, -transform.localScale.y * dashingPower);
+        }
+        /*if (sr.flipY == true)
+        {
+            rb.velocity = new Vector2(transform.localScale.y * dashingPower, 0f);
+        }
+        else
+        {
+            rb.velocity = new vector2(-transform.localscale.y * dashingpower, 0f);
+        }*/
+        tr.emitting = true;
+        yield return new WaitForSeconds(dashingTime);
+        tr.emitting = false;
+        rb.gravityScale = originalGravity;
+        isDashing = false;
+        yield return new WaitForSeconds(dashingCooldown);
+        canDash = true;
+    }
+
 }
