@@ -26,12 +26,13 @@ public class Player : MonoBehaviour
     private float dashingTime = 0.5f;
     private float dashingCooldown = 0.3f;
     private bool wallJumped = false;
-
-
+    private Vector2 DashDirection;
+    private int DashPower = 100;
 
     // Start is called before the first frame update
     void Start()
     {
+        
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
         animController = GetComponent<Animator>();
@@ -41,20 +42,29 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash)
+        {
+            Dash();
+        }
 
         if (isDashing)
         {
-            return;
+            rb.velocity = DashDirection*DashPower;
+            isDashing = false;
+            canDash = true;
+
         }
+        
+        
+        
+
+
         horizontal_value = Input.GetAxis("Horizontal");
 
         if (horizontal_value > 0) sr.flipX = false;
         else if (horizontal_value < 0) sr.flipX = true;
 
-        if (isDashing)
-        {
-            return;
-        }
+        
         /*vertical_value = Input.GetAxis("Verticale");
 
                 if (vertical_value > 0) sr.flipY = false;
@@ -68,17 +78,11 @@ public class Player : MonoBehaviour
             is_jumping = true;
             animController.SetBool("Jumping", true);
         }
-        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash)
-        {
-            StartCoroutine(Dash());
-        }
+        
+        vertical_value = Input.GetAxis("Vertical");
     }
     void FixedUpdate()
     {
-        if (isDashing)
-        {
-            return;
-        }
         if (is_jumping && can_jump)
         {
             is_jumping = false;
@@ -99,49 +103,15 @@ public class Player : MonoBehaviour
         animController.SetBool("Jumping", false);
     }
 
-
-    private IEnumerator Dash()
+    
+    private void Dash()
     {
+        
         canDash = false;
         isDashing = true;
         float originalGravity = rb.gravityScale;
-        //rb.gravityScale = 0f;
-
-        if (Input.GetKey(KeyCode.Q))
-        {
-            rb.velocity = new Vector2(transform.localScale.x * -horizontaldashingPower, 0f);
-        }
-
-        else if (Input.GetKey(KeyCode.D))
-        {
-            rb.velocity = new Vector2(transform.localScale.x * horizontaldashingPower, 0f);
-        }
-
-
-
-        if (Input.GetKey(KeyCode.Z))
-        {
-            rb.velocity = new Vector2(0f, transform.localScale.y * horizontaldashingPower);
-            
-        }
-
-        else if (Input.GetKey(KeyCode.S))
-        {
-            rb.velocity = new Vector2(0f, transform.localScale.y * -horizontaldashingPower);
-            
-        }
-
-        Debug.Log("sale noir");
-
-
-
-        tr.emitting = true;
-        yield return new WaitForSeconds(dashingTime);
-        tr.emitting = false;
-        rb.gravityScale = originalGravity;
-        isDashing = false;
-        yield return new WaitForSeconds(dashingCooldown);
-        canDash = true; 
+        DashDirection = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+        
     }
 }
 
