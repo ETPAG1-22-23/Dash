@@ -18,13 +18,14 @@ public class Player : MonoBehaviour
     [Range(0, 1)] [SerializeField] float smooth_time = 0.5f;
     [SerializeField] private TrailRenderer tr;
     [SerializeField] private bool hasVerticalChanged;
+    [SerializeField] private bool hasHorizontalChanged;
     private bool canDash = true;
     private bool isDashing;
     private float horizontaldashingPower = 25f;
     private float verticaldashingPower = 25f;
     private float dashingTime = 0.5f;
     private float dashingCooldown = 0.3f;
-    
+    private bool wallJumped = false;
 
 
 
@@ -54,10 +55,10 @@ public class Player : MonoBehaviour
         {
             return;
         }
-/*vertical_value = Input.GetAxis("Verticale");
+        /*vertical_value = Input.GetAxis("Verticale");
 
-        if (vertical_value > 0) sr.flipY = false;
-        else if (vertical_value < 0) sr.flipY = true;*/
+                if (vertical_value > 0) sr.flipY = false;
+                else if (vertical_value < 0) sr.flipY = true;*/
 
 
         animController.SetFloat("Speed", Mathf.Abs(horizontal_value));
@@ -97,39 +98,55 @@ public class Player : MonoBehaviour
     {
         animController.SetBool("Jumping", false);
     }
+
+
     private IEnumerator Dash()
     {
         canDash = false;
         isDashing = true;
         float originalGravity = rb.gravityScale;
         //rb.gravityScale = 0f;
-        if (sr.flipX == true)
+
+        if (Input.GetKey(KeyCode.Q))
         {
-            rb.velocity = new Vector2(transform.localScale.x * -horizontaldashingPower, transform.localScale.y);
+            rb.velocity = new Vector2(transform.localScale.x * -horizontaldashingPower, 0f);
         }
-        else
+
+        else if (Input.GetKey(KeyCode.D))
         {
-            rb.velocity = new Vector2(transform.localScale.x * horizontaldashingPower, transform.localScale.y);
+            rb.velocity = new Vector2(transform.localScale.x * horizontaldashingPower, 0f);
         }
-        if (hasVerticalChanged)
-            if (sr.flipY == true)
-            {
-                rb.velocity = new Vector2(transform.localScale.x, transform.localScale.y * -verticaldashingPower);
-            }
-            else
-            {
-                rb.velocity = new Vector2(-transform.localScale.x, transform.localScale.y * verticaldashingPower);
-            }
+
+
+
+        if (Input.GetKey(KeyCode.Z))
+        {
+            rb.velocity = new Vector2(0f, transform.localScale.y * horizontaldashingPower);
+            
+        }
+
+        else if (Input.GetKey(KeyCode.S))
+        {
+            rb.velocity = new Vector2(0f, transform.localScale.y * -horizontaldashingPower);
+            
+        }
+
+        Debug.Log("sale noir");
+
+
+
         tr.emitting = true;
         yield return new WaitForSeconds(dashingTime);
         tr.emitting = false;
         rb.gravityScale = originalGravity;
         isDashing = false;
         yield return new WaitForSeconds(dashingCooldown);
-        canDash = true;
+        canDash = true; 
     }
 }
 
 
-    
 
+
+
+//if (hasVerticalChanged)
