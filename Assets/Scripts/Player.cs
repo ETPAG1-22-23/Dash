@@ -19,7 +19,7 @@ public class Player : MonoBehaviour
     [SerializeField] private TrailRenderer tr;
     [SerializeField] private bool hasVerticalChanged;
     [SerializeField] private bool hasHorizontalChanged;
-    private bool canDash = true;
+    [SerializeField] private bool canDash = true;
     private bool isDashing;
     private float horizontaldashingPower = 25f;
     private float verticaldashingPower = 25f;
@@ -27,12 +27,13 @@ public class Player : MonoBehaviour
     private float dashingCooldown = 0.3f;
     private bool wallJumped = false;
     private Vector2 DashDirection;
-    private int DashPower = 100;
+    [SerializeField] int DashPower = 50;
+    int DashDiag = 5;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
         animController = GetComponent<Animator>();
@@ -45,26 +46,29 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.LeftShift) && canDash)
         {
             Dash();
+            tr.emitting = true;
         }
 
+
+
+        if (Input.GetKeyUp(KeyCode.LeftShift))
+        {
+            tr.emitting = false;
+        }
         if (isDashing)
         {
-            rb.velocity = DashDirection*DashPower;
+            rb.velocity = DashDirection * DashPower;
             isDashing = false;
             canDash = true;
 
         }
-        
-        
-        
-
 
         horizontal_value = Input.GetAxis("Horizontal");
 
         if (horizontal_value > 0) sr.flipX = false;
         else if (horizontal_value < 0) sr.flipX = true;
 
-        
+
         /*vertical_value = Input.GetAxis("Verticale");
 
                 if (vertical_value > 0) sr.flipY = false;
@@ -78,7 +82,7 @@ public class Player : MonoBehaviour
             is_jumping = true;
             animController.SetBool("Jumping", true);
         }
-        
+
         vertical_value = Input.GetAxis("Vertical");
     }
     void FixedUpdate()
@@ -103,17 +107,27 @@ public class Player : MonoBehaviour
         animController.SetBool("Jumping", false);
     }
 
-    
+
     private void Dash()
     {
-        
-        canDash = false;
-        isDashing = true;
-        float originalGravity = rb.gravityScale;
-        DashDirection = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-        
+        if (dashingTime > 0)
+        {
+            canDash = false;
+            isDashing = true;
+            float originalGravity = rb.gravityScale;
+            DashDirection = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+            tr.emitting = true;
+        }
     }
+
+    //dashingTime -= Time.deltaTime;
+
+
+
+
 }
+       
+
 
 
 
