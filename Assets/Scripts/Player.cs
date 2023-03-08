@@ -21,15 +21,11 @@ public class Player : MonoBehaviour
     [SerializeField] private bool hasHorizontalChanged;
     [SerializeField] private bool canDash = true;
     private bool isDashing;
-    private float horizontaldashingPower = 25f;
-    private float verticaldashingPower = 25f;
     private float dashingTime = 0.5f;
-    private float dashingCooldown = 0.3f;
-    private bool wallJumped = false;
     private Vector2 DashDirection;
-    [SerializeField] int DashPower = 50;
-    int DashDiag = 5;
-
+    [SerializeField] int DashPower = 0;
+    
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -37,7 +33,6 @@ public class Player : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
         animController = GetComponent<Animator>();
-        //Debug.Log(Mathf.Lerp(current, target, 0));
     }
 
     // Update is called once per frame
@@ -45,6 +40,7 @@ public class Player : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.LeftShift) && canDash)
         {
+            canDash = false;
             Dash();
             tr.emitting = true;
         }
@@ -55,24 +51,24 @@ public class Player : MonoBehaviour
         {
             tr.emitting = false;
         }
+
         if (isDashing)
         {
-            rb.velocity = DashDirection * DashPower;
+            print("test");
+            rb.velocity =(DashDirection*DashPower);
+ 
+
+            rb.velocity.Normalize();
             isDashing = false;
             canDash = true;
+            Debug.Log("Test");
 
         }
-
+        
         horizontal_value = Input.GetAxis("Horizontal");
 
         if (horizontal_value > 0) sr.flipX = false;
         else if (horizontal_value < 0) sr.flipX = true;
-
-
-        /*vertical_value = Input.GetAxis("Verticale");
-
-                if (vertical_value > 0) sr.flipY = false;
-                else if (vertical_value < 0) sr.flipY = true;*/
 
 
         animController.SetFloat("Speed", Mathf.Abs(horizontal_value));
@@ -112,15 +108,17 @@ public class Player : MonoBehaviour
     {
         if (dashingTime > 0)
         {
-            canDash = false;
             isDashing = true;
-            float originalGravity = rb.gravityScale;
             DashDirection = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+            DashDirection.Normalize();
+            Debug.Log(new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")));
+
             tr.emitting = true;
         }
-    }
 
-    //dashingTime -= Time.deltaTime;
+    }
+  
+    
 
 
 
@@ -133,4 +131,3 @@ public class Player : MonoBehaviour
 
 
 
-//if (hasVerticalChanged)
