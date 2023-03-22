@@ -19,7 +19,6 @@ public class Player_Com : MonoBehaviour
     [SerializeField] private TrailRenderer tr;
     private bool wallJumped = false;
 
-
     // Vitesse de déplacement du joueur
     public float moveSpeed = 5f;
     // Distance maximale de déplacement lors du dash
